@@ -1,0 +1,9 @@
+Moosas local RDF stack
+
+RDF.rb: 3.2.12
+RDF::Turtle: 3.2.1
+EBNF: 2.3.5
+
+These are vendored pure-Ruby sources for SketchUp 2022 compatibility.
+They are loaded through ../MoosasRdf.rb and are not installed as gems.
+License files are in the licenses/ directory.
