@@ -1,0 +1,58 @@
+
+#zone_params div{
+    height: 40px;
+}
+#recognize_result_stat {
+    margin-top: 400px;
+}
+#recognize_result_stat img{
+    height: 60px;
+}
+#building_tree button{
+    height: 45px;
+    width: 110px;
+}
+#building_params_table td{
+    white-space: nowrap;
+    overflow: hidden;
+    width: 200px;
+}
+#recognize_result_stat div div{
+    height: 60px;
+    margin-top: 10px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+#recognize_result_stat div .col-2{
+    cursor: pointer;
+}
+
+#recognize_result_stat div .col-2:hover{
+    background-color:#28A745;
+}
+
+#building_tree .space_button { display: block; width: 100%; margin: 3px 0; text-align: left; padding: 7px 10px; border: 1px solid #ddd; border-radius: 4px; background: #fff; word-break: break-word; }
+#building_tree .space_button.selected { background: #e8f5e9; border-color: #28a745; color: #19692c; }
+#building_tree .space_button:disabled { opacity: .6; }
+/* Model SVG and editor: no absolutely-positioned overlapping panels. */
+.model-plan {padding: 12px; border-top: 1px solid #ddd; border-bottom: 1px solid #ddd;}
+#space_level {min-width: 220px; padding: 6px; margin: 0 12px 8px 6px;}
+#space_svg_view {height: 400px; min-height: 240px; overflow: auto; background: #f4f0e8;}
+#space_svg_view svg {display: block; width: 100%; height: 100%; touch-action: none; cursor: grab;}
+#space_svg_view svg:active {cursor: grabbing;}
+#space_svg_view svg * {pointer-events: none;}
+#space_svg_view .space-hit, #space_svg_view .space-hit path {pointer-events: fill; cursor: pointer;}
+#space_svg_view .space-hit:hover path, #space_svg_view .space-hit:focus path {opacity: .18 !important; fill: #237a57 !important;}
+#space_svg_view .space-hit.selected path {opacity: .3 !important; fill: #149369 !important; stroke: #087b56 !important; stroke-width: 2px !important;}
+#space_svg_view .element-hit, #space_svg_view .element-hit path {pointer-events: fill; cursor: pointer;}
+#space_svg_view .element-hit:hover path, #space_svg_view .element-hit.selected path {opacity: .38 !important; fill: #1769aa !important; stroke: #073f73 !important; stroke-width: 2px !important;}
+.model-editor-actions {display:flex; align-items:center; gap:8px; margin:0 0 10px;}
+.model-editor-actions #space_selection_hint {margin-left:4px;}
+#space_svg_warnings {white-space: pre-line; font-size: 12px; color: #8a5c22;}
+.model-space-parameters {padding: 14px; width: 100%;}
+#building_params_table {width: 100%; table-layout: fixed;}
+#building_params_table td {padding: 6px 8px; width: auto; vertical-align: top;}
+.space-input {width: 100%; min-width: 0; padding: 5px 8px; border: 1px solid #bbb; border-radius: 3px;}
+.space-input:focus {outline: 2px solid #70ac96;}
+.field-error {display: block; color: #b33333; font-size: 12px; overflow-wrap: anywhere;}

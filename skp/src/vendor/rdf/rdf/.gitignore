@@ -1,0 +1,3 @@
+# Ignore any local symlinks to a development copy of RDF::Spec
+spec
+spec.rb
