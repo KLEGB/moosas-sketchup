@@ -10,15 +10,17 @@ When `moosas-sketchup-builder.exe` is run, it:
 2. downloads the current `main` branch of this repository for `skp/` and `setup/`;
 3. downloads the official 64-bit Python 3.12.10 embeddable distribution;
 4. installs the Python dependencies declared by the Moosas project, assembles the Ruby code, `MoosasPy`, and the embedded Python runtime; and
-5. writes `dist/moosas-sketchup.rbz` next to the executable.
+5. writes the RBZ package to the folder and file name selected in the builder.
 
 The builder uses GitHub source archives, so Git and a pre-installed Python runtime are not required. Internet access is required. The generated RBZ is built from the latest `main` branches at execution time; use a tagged release or commit-pinned builder if a reproducible build is required.
 
 ## Build the bootstrap executable
 
-Compile `setup/toSketchUp.nsi` with NSIS. The resulting `moosas-sketchup-builder.exe` is written to the repository root. Because the NSIS definition contains only lightweight PowerShell bootstrap code, the EXE remains small.
+Compile `setup/toSketchUp.nsi` with NSIS. The resulting `dist/moosas-sketchup-builder.exe` is written to the `dist` directory. Because the NSIS definition contains only lightweight PowerShell bootstrap code, the EXE remains small.
 
-On build failure, diagnostic files are retained in `dist/.build/logs/`, including `build.log` and `bootstrap.log`. On success, `dist/.build/` is removed and only the RBZ remains.
+The builder's settings page lets users select the export folder and RBZ file name. It also includes an optional local HTTP proxy switch; when enabled, the specified port is used at `127.0.0.1` for GitHub and package downloads.
+
+On build failure, diagnostic files are retained in `<selected output folder>/.build/logs/`, including `build.log` and `bootstrap.log`. On success, the temporary `.build/` directory is removed and only the RBZ remains.
 
 ## Repository layout
 

@@ -1,0 +1,41 @@
+# Python caches, virtual environments, coverage, and test output
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.venv/
+venv/
+env/
+
+# Editor and operating-system files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Temporary files and logs
+temp/
+tmp/
+*.tmp
+*.bak
+*.log
+
+# Builder working directory and generated RBZ packages
+dist/.build/
+dist/*.rbz
+dist/*.rbz.tmp
+
+# Keep the release bootstrap executable in dist; ignore other build output.
+dist/*
+!dist/moosas-sketchup-builder.exe
