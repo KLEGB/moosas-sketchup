@@ -2,7 +2,7 @@
 
 The lightweight NSIS bootstrap downloads the source archives and the Python
 embeddable distribution before invoking this script with their locations.
-All generated files are confined to ``<output-root>/dist``.
+All generated files are confined to the selected output directory.
 """
 
 from __future__ import annotations
@@ -43,6 +43,9 @@ def install_dependencies(python_root: Path, sketchup_root: Path, moosas_root: Pa
     setup_root = sketchup_root / "setup"
     run([str(python_exe), "--version"], cwd=python_root)
     run([str(python_exe), str(setup_root / "get-pip.py")], cwd=python_root)
+    # pydot3k is an older source distribution and needs the legacy setuptools
+    # build backend explicitly available under Python 3.12's embeddable runtime.
+    run([str(python_exe), "-m", "pip", "install", "--no-cache-dir", "setuptools", "wheel"], cwd=python_root)
     for package in ("pydot==4.0.1", str(setup_root / "pydot3k-1.0.17.tar.gz"), str(setup_root / "db_eplusout_reader-0.3.1-py2.py3-none-any.whl")):
         run([str(python_exe), "-m", "pip", "install", "--no-cache-dir", package], cwd=python_root)
     project = tomllib.loads((moosas_root / "pyproject.toml").read_text(encoding="utf-8"))
@@ -69,21 +72,20 @@ def write_rbz(staging_root: Path, output_rbz: Path) -> None:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build the moosas-sketchup RBZ")
-    parser.add_argument("--output-root", type=Path, required=True)
+    parser.add_argument("--output-path", type=Path, required=True)
     parser.add_argument("--moosas-root", type=Path, required=True)
     parser.add_argument("--sketchup-root", type=Path, required=True)
     parser.add_argument("--python-root", type=Path, required=True)
     args = parser.parse_args()
 
-    output_root, moosas_root = args.output_root.resolve(), args.moosas_root.resolve()
+    output_rbz, moosas_root = args.output_path.resolve(), args.moosas_root.resolve()
     sketchup_root, python_root = args.sketchup_root.resolve(), args.python_root.resolve()
-    dist_root = output_root / "dist"
-    build_root = dist_root / ".build"
+    output_root = output_rbz.parent
+    build_root = output_root / ".build"
     staging_root = build_root / "staging"
     plugin_root = staging_root / "moosas-sketchup"
-    output_rbz = dist_root / "moosas-sketchup.rbz"
     log_root = build_root / "logs"
-    dist_root.mkdir(parents=True, exist_ok=True)
+    output_root.mkdir(parents=True, exist_ok=True)
     log_root.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s", handlers=[logging.FileHandler(log_root / "build.log", encoding="utf-8"), logging.StreamHandler()])
     try:

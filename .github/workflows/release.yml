@@ -1,0 +1,48 @@
+name: Release SketchUp Builder
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "moosas-sketchup-v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to create or update"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-release:
+    runs-on: windows-latest
+    env:
+      RELEASE_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Install NSIS
+        shell: pwsh
+        run: choco install nsis --no-progress --yes
+
+      - name: Compile bootstrap executable
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path dist -Force | Out-Null
+          & "${env:ProgramFiles(x86)}\NSIS\makensis.exe" /V3 setup\toSketchUp.nsi
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          if (-not (Test-Path -LiteralPath dist\moosas-sketchup-builder.exe)) {
+            throw "NSIS did not produce the bootstrap executable."
+          }
+
+      - name: Create GitHub release and upload builder
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          target_commitish: ${{ github.sha }}
+          generate_release_notes: true
+          files: dist/moosas-sketchup-builder.exe
