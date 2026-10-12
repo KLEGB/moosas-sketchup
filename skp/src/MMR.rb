@@ -648,6 +648,8 @@ module MMR
         pts = pts.map { |point| [point[0] + translation_x, point[1], point[2]] }
         pts = self.simplified(pts, offset)
         if pts.length < 3
+          @skipped_degenerate_geometry_ids ||= []
+          @skipped_degenerate_geometry_ids << gid.to_s
           next
         end
         unless MMRGeoExport.frame(pts)
@@ -750,11 +752,30 @@ module MMR
     unless skipped_ids.empty?
       has_face = MoosasRdf::MOOSAS + 'hasFace'
       face_id = RDF::URI.new(MoosasRdf::MOOSAS + 'faceId')
+      has_face_predicate = RDF::URI.new(has_face)
+      skipped_geometry_nodes = rdf_graph.query([nil, face_id, nil]).filter_map do |statement|
+        statement.subject if skipped_ids.include?(statement.object.to_s)
+      end.to_set
+      skipped_geometry_nodes.each do |geometry_node|
+        rdf_graph.to_a.each do |statement|
+          rdf_graph.delete(statement) if statement.predicate == has_face_predicate && statement.object == geometry_node
+        end
+      end
+      element_type = RDF::URI.new(MoosasRdf::RDF_NS + 'type')
+      element_class = RDF::URI.new(MoosasRdf::BOT + 'Element')
+      empty_elements = rdf_graph.query([nil, element_type, element_class]).filter_map do |statement|
+        node = statement.subject
+        node if rdf_graph.query([node, has_face_predicate, nil]).empty?
+      end.to_set
+      removed_interfaces = rdf_graph.query([nil, RDF::URI.new(MoosasRdf::BOT + 'interfaceOf'), nil]).filter_map do |statement|
+        statement.subject if empty_elements.include?(statement.object)
+      end.to_set
       rdf_graph.to_a.each do |statement|
-        next unless statement.predicate.to_s == has_face
-        linked_id = rdf_graph.query([statement.object, face_id, nil]).map(&:object).first
-        linked_id ||= statement.object
-        rdf_graph.delete(statement) if skipped_ids.include?(linked_id.to_s)
+        remove = empty_elements.include?(statement.subject) ||
+          removed_interfaces.include?(statement.subject) ||
+          removed_interfaces.include?(statement.object) ||
+          (statement.predicate == RDF::URI.new(MoosasRdf::BOT + 'hasSubElement') && empty_elements.include?(statement.object))
+        rdf_graph.delete(statement) if remove
       end
       p "Ignored zero-area transformed geometry: #{skipped_ids.join(', ')}"
     end

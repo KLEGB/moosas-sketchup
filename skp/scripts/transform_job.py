@@ -1,7 +1,7 @@
 """SketchUp geometry -> MoosasPy transform -> RDF/geometry output."""
 from pathlib import Path
 import json
-from urllib.parse import urlsplit
+from urllib.parse import unquote, urlsplit
 from rdflib import Graph, Literal, URIRef
 from MoosasPy.transform import transform, TransformOptions
 from MoosasPy.transform.importers.geo import writeGeo
@@ -30,9 +30,18 @@ def _namespace_group_outputs(geo_path, rdf_path, namespace):
         if not isinstance(node, URIRef):
             return node
         value = str(node)
+        # RDF.rb writes geometry references as absolute file:// URIs while
+        # the transformed GEO uses the local face id (for example 0_100).
+        # Resolve that basename before the namespace check so hasFace points
+        # to the same id that will be rebuilt in SketchUp.
+        parsed = urlsplit(value)
+        if parsed.scheme == 'file':
+            basename = unquote(parsed.path.rsplit('/', 1)[-1])
+            if basename in geo_ids:
+                return URIRef(geo_ids[basename])
         # Moosas emits local identifiers for elements, spaces, levels, and
         # geometry. Ontology predicates and classes are absolute URIs.
-        if urlsplit(value).scheme:
+        if parsed.scheme:
             return node
         for old_id in sorted(geo_ids, key=len, reverse=True):
             if value == old_id:
